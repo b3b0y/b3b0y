@@ -79,4 +79,71 @@ function dbquery( $table, $filter, $conditions ){
 
 }
 
+function dblogin( $table, $filter, $conditions ){
+
+  try{
+
+    $return		=	'';
+
+    $cmd		=	new PDO('mysql:host=localhost;dbname=crud', 'root', '');
+
+    $query		=	$cmd->prepare('SELECT '.$filter.' FROM '.$table.' '.$conditions);
+
+    $cmd->setATTRIBUTE(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $query->execute();
+
+
+    $return		=	$query->fetchAll(PDO::FETCH_ASSOC);
+
+    return json_encode($return);
+
+  }catch( PDOException $e ){
+
+    echo $e->getMessage();
+
+  }
+
+}
+
+function dbregister( $table = '', $values = '', $email ){
+
+  try{
+
+    $return		=	'';
+
+    $cmd		=	new PDO('mysql:host=localhost;dbname=crud', 'root', '');
+
+    $stmt = $cmd->prepare("SELECT * FROM tbl_users WHERE user_email=:email");
+    $stmt->execute(array(":email"=>$email));
+    $count = $stmt->rowCount();
+
+    if($count==0){
+      $query		=	$cmd->prepare('INSERT INTO '.$table.' VALUES('.$values.')');
+
+      $cmd->setATTRIBUTE(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+      if($query->execute())
+      {
+       echo "registered";
+      }
+      else
+      {
+       echo "Query could not execute !";
+      }
+
+    }
+    else{
+
+    echo "1"; //  not available
+    }
+    
+  }catch( PDOException $e ){
+
+    echo $e->getMessage();
+
+  }
+
+}
+
 ?>

@@ -9,26 +9,49 @@ $result = '';
 
 switch (strtoupper($function)) {
 
-  case 'ADDPRODUCT':
+  case 'LOGIN_PROCESS':
+        session_start();
+        if(isset($_POST['btn-login']))
+        {
+          $user_email = trim($_POST['user_email']);
+          $user_password = trim($_POST['password']);
 
-    $result =  dbsave('products',"0,'".$name."','".$description."','".$price."',0,'".date('Y-m-d H:i:s')."','".date('Y-m-d H:i:s')."'
-              ");
+          $password = md5($user_password);
 
-    echo $result;
+
+          $result = dblogin(
+          '	tbl_users',
+          '	*',
+          'WHERE user_email = "'.$user_email.'"'
+          );
+
+          $row = json_decode($result);
+
+          if($row[0]->user_password ==$password){
+
+           echo "ok"; // log in
+           $_SESSION['user_session'] = $row[0]->user_id;
+          }
+          else{
+
+           echo "email or password does not exist."; // wrong details
+          }
+
+        }
     break;
+  case 'REGISTER':
+        if($_POST)
+        {
+          $user_name = $_POST['name'];
+          $user_email = $_POST['user_email'];
+          $user_password = $_POST['password2'];
+          $joining_date =date('Y-m-d H:i:s');
 
-  case 'VIEW':
+          $return = dbregister('tbl_users',"0,'".$user_name."','".$user_email."','".md5($user_password)."','".$joining_date."'",$user_email);
 
-  $products = dbquery(
-    '	products',
-    '	*',
-    ''
-    );
-
-    echo $products;
+        }
+        echo $return;
     break;
-
-
   default:
     # code...
     break;
